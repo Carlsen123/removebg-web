@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Remove Background - Background Remover</title>
+  <meta name="description" content="Hapus background foto secara otomatis dengan AI." />
+  <style>
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;font-family:Inter,Arial,Helvetica,sans-serif;color:#1f2937;
+      background:#fff;min-height:100vh;
+    }
+    button,input{font:inherit}
+    .nav{
+      height:72px;border-bottom:1px solid #eee;display:flex;align-items:center;
+      justify-content:space-between;padding:0 6%;background:#fff;position:sticky;top:0;z-index:20;
+    }
+    .brand{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:800;color:#111827}
+    .brand-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#6d5dfc,#8b7cff);display:grid;place-items:center;color:white;font-weight:900}
+    .nav-right{display:flex;align-items:center;gap:10px}
+    .nav-btn{border:0;background:transparent;padding:10px 14px;color:#4b5563;cursor:pointer}
+    .nav-btn.primary{background:#6d5dfc;color:#fff;border-radius:10px;font-weight:700}
+    .hero{padding:70px 20px 40px;text-align:center;background:linear-gradient(180deg,#faf9ff 0,#fff 100%)}
+    .eyebrow{display:inline-flex;padding:7px 12px;border-radius:999px;background:#efedff;color:#5a4de0;font-size:13px;font-weight:700;margin-bottom:18px}
+    h1{font-size:clamp(38px,6vw,70px);line-height:1.02;margin:0 auto 18px;letter-spacing:-2.5px;color:#111827;max-width:850px}
+    .hero p{max-width:650px;margin:0 auto;color:#6b7280;font-size:18px;line-height:1.6}
+    .workspace{max-width:1050px;margin:34px auto 80px;padding:0 20px}
+    .dropzone{
+      position:relative;border:2px dashed #cfcafc;border-radius:24px;min-height:390px;
+      background:#fbfaff;display:flex;align-items:center;justify-content:center;
+      transition:.2s;overflow:hidden;
+    }
+    .dropzone.drag{border-color:#6d5dfc;background:#f2f0ff;transform:scale(1.005)}
+    .upload-inner{text-align:center;padding:35px}
+    .upload-icon{width:82px;height:82px;border-radius:22px;background:#eae7ff;color:#6557e8;display:grid;place-items:center;margin:0 auto 20px}
+    .upload-icon svg{width:40px;height:40px}
+    .upload-inner h2{margin:0 0 8px;font-size:28px;color:#111827}
+    .upload-inner p{margin:0 0 22px;color:#737b89}
+    .upload-btn{border:0;border-radius:12px;background:#6d5dfc;color:white;padding:15px 25px;font-weight:800;cursor:pointer;box-shadow:0 8px 20px rgba(109,93,252,.22)}
+    .small{font-size:13px;color:#9ca3af;margin-top:15px!important}
+    #fileInput{display:none}
+    .result{display:none;margin-top:26px;background:#fff;border:1px solid #e7e7eb;border-radius:20px;padding:18px;box-shadow:0 12px 35px rgba(20,20,40,.06)}
+    .result.show{display:block}
+    .result-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:15px}
+    .result-title{font-weight:800}
+    .status{font-size:13px;color:#6b7280}
+    .preview{
+      min-height:300px;border-radius:16px;display:grid;place-items:center;overflow:hidden;
+      background-color:#eee;
+      background-image:linear-gradient(45deg,#eee 25%,transparent 25%),linear-gradient(-45deg,#eee 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#eee 75%),linear-gradient(-45deg,transparent 75%,#eee 75%);
+      background-size:28px 28px;background-position:0 0,0 14px,14px -14px,-14px 0;
+    }
+    .preview img{max-width:100%;max-height:620px;display:block;object-fit:contain}
+    .actions{display:flex;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap}
+    .action{border:1px solid #ddd;background:#fff;color:#333;border-radius:10px;padding:12px 18px;cursor:pointer;font-weight:700}
+    .action.download{background:#111827;color:#fff;border-color:#111827}
+    .loader{display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#555;min-height:300px}
+    .loader.show{display:flex}
+    .spinner{width:48px;height:48px;border:5px solid #e5e7eb;border-top-color:#6d5dfc;border-radius:50%;animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .features{max-width:1050px;margin:0 auto 90px;padding:0 20px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .card{border:1px solid #eee;border-radius:18px;padding:25px;background:#fff}
+    .card-icon{font-size:28px;margin-bottom:13px}
+    .card h3{margin:0 0 7px}.card p{margin:0;color:#6b7280;line-height:1.6;font-size:14px}
+    .how{background:#f8f8fb;padding:70px 20px}
+    .how-inner{max-width:1050px;margin:auto}
+    .how h2{text-align:center;font-size:36px;margin:0 0 35px}
+    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .step{background:#fff;border-radius:18px;padding:25px;border:1px solid #eee}
+    .num{width:35px;height:35px;border-radius:50%;background:#efedff;color:#5d50e0;display:grid;place-items:center;font-weight:800;margin-bottom:15px}
+    footer{padding:35px 20px;text-align:center;color:#8b8f98;font-size:13px}
+    .error{color:#dc2626;text-align:center;padding:20px}
+    @media(max-width:750px){
+      .nav{padding:0 18px}.nav-right .nav-btn:not(.primary){display:none}
+      .hero{padding-top:50px}.dropzone{min-height:330px}
+      .features,.steps{grid-template-columns:1fr}
+      h1{letter-spacing:-1.5px}
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="brand"><div class="brand-mark">R</div> RemoveBG AI</div>
+    <div class="nav-right">
+      <button class="nav-btn" onclick="document.querySelector('.how').scrollIntoView()">Cara kerja</button>
+      <button class="nav-btn primary" onclick="openPicker()">Upload Foto</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="eyebrow">✨ AI Background Remover</div>
+      <h1>Hapus background foto secara otomatis</h1>
+      <p>Upload foto, biarkan AI memisahkan objek dari background, lalu download hasilnya dalam format PNG transparan.</p>
+    </section>
+
+    <section class="workspace">
+      <div id="dropzone" class="dropzone">
+        <div id="uploadInner" class="upload-inner">
+          <div class="upload-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 16V4m0 0L7 9m5-5 5 5"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/>
+            </svg>
+          </div>
+          <h2>Upload gambar</h2>
+          <p>Tarik & letakkan foto di sini, atau pilih file dari perangkat</p>
+          <button class="upload-btn" onclick="openPicker()">Pilih Gambar</button>
+          <p class="small">JPG, PNG atau WebP • Maks. 22 MB</p>
+        </div>
+        <div id="loader" class="loader">
+          <div class="spinner"></div>
+          <strong>Sedang menghapus background...</strong>
+          <span>Mohon tunggu beberapa detik</span>
+        </div>
+      </div>
+      <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp">
+
+      <div id="result" class="result">
+        <div class="result-head">
+          <div class="result-title">Hasil background transparan</div>
+          <div id="status" class="status"></div>
+        </div>
+        <div class="preview"><img id="resultImage" alt="Hasil remove background"></div>
+        <div class="actions">
+          <button class="action" onclick="resetApp()">↩ Upload Lagi</button>
+          <button id="downloadBtn" class="action download">⬇ Download PNG</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="features">
+      <div class="card"><div class="card-icon">⚡</div><h3>Proses cepat</h3><p>Foto diproses otomatis melalui layanan AI background removal.</p></div>
+      <div class="card"><div class="card-icon">🎯</div><h3>Hasil rapi</h3><p>AI mendeteksi foreground seperti manusia, produk, hewan, dan objek lain.</p></div>
+      <div class="card"><div class="card-icon">🖼️</div><h3>PNG transparan</h3><p>Hasil dapat langsung digunakan untuk desain, marketplace, poster, dan kebutuhan lainnya.</p></div>
+    </section>
+
+    <section class="how">
+      <div class="how-inner">
+        <h2>Bagaimana cara kerjanya?</h2>
+        <div class="steps">
+          <div class="step"><div class="num">1</div><h3>Upload foto</h3><p>Pilih foto dari komputer atau drag & drop ke area upload.</p></div>
+          <div class="step"><div class="num">2</div><h3>AI memproses</h3><p>Server mengirim gambar ke API background-removal untuk diproses.</p></div>
+          <div class="step"><div class="num">3</div><h3>Download</h3><p>Hasil PNG transparan ditampilkan dan siap disimpan.</p></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>© 2026 RemoveBG AI • Dibuat untuk kebutuhan editing gambar</footer>
+
+<script>
+const dropzone = document.getElementById('dropzone');
+const input = document.getElementById('fileInput');
+const uploadInner = document.getElementById('uploadInner');
+const loader = document.getElementById('loader');
+const result = document.getElementById('result');
+const resultImage = document.getElementById('resultImage');
+const statusEl = document.getElementById('status');
+const downloadBtn = document.getElementById('downloadBtn');
+
+function openPicker(){ input.click(); }
+input.addEventListener('change', e => {
+  if(e.target.files?.[0]) processImage(e.target.files[0]);
+});
+
+['dragenter','dragover'].forEach(ev => dropzone.addEventListener(ev, e => {
+  e.preventDefault(); dropzone.classList.add('drag');
+}));
+['dragleave','drop'].forEach(ev => dropzone.addEventListener(ev, e => {
+  e.preventDefault(); dropzone.classList.remove('drag');
+}));
+dropzone.addEventListener('drop', e => {
+  const file = e.dataTransfer.files?.[0];
+  if(file) processImage(file);
+});
+
+async function processImage(file){
+  if(!file.type.startsWith('image/')){
+    alert('Silakan pilih file gambar.');
+    return;
+  }
+  if(file.size > 22 * 1024 * 1024){
+    alert('Ukuran file maksimal 22 MB.');
+    return;
+  }
+
+  uploadInner.style.display = 'none';
+  loader.classList.add('show');
+  result.classList.remove('show');
+  statusEl.textContent = 'Memproses...';
+
+  const form = new FormData();
+  form.append('image', file);
+
+  try{
+    const response = await fetch('/api/remove-bg', { method:'POST', body:form });
+    const contentType = response.headers.get('content-type') || '';
+    if(!response.ok){
+      let msg = 'Gagal memproses gambar.';
+      if(contentType.includes('application/json')){
+        const data = await response.json();
+        msg = data.error || msg;
+      }
+      throw new Error(msg);
+    }
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    resultImage.src = url;
+    downloadBtn.onclick = () => {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'background-removed.png';
+      a.click();
+    };
+    result.classList.add('show');
+    statusEl.textContent = 'Selesai';
+  }catch(err){
+    alert(err.message || 'Terjadi kesalahan.');
+    uploadInner.style.display = 'block';
+  }finally{
+    loader.classList.remove('show');
+  }
+}
+
+function resetApp(){
+  input.value = '';
+  result.classList.remove('show');
+  resultImage.removeAttribute('src');
+  uploadInner.style.display = 'block';
+  statusEl.textContent = '';
+}
+</script>
+</body>
+</html>
